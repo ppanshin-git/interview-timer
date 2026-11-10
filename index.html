@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Таймер кейса</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef1f5; --card:#ffffff; --ink:#18202b; --muted:#5d6878; --line:#d7dde6;
+  --now:#2b4acb; --now-soft:#e2e7fb; --warn:#b86a00; --warn-soft:#fbefdc; --done:#aab3c0;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121722; --card:#1a2130; --ink:#e8ecf2; --muted:#9aa5b5; --line:#2c3547;
+    --now:#8ea2ff; --now-soft:#25305a; --warn:#f0a63a; --warn-soft:#3a2c15; --done:#4b5567;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121722; --card:#1a2130; --ink:#e8ecf2; --muted:#9aa5b5; --line:#2c3547;
+  --now:#8ea2ff; --now-soft:#25305a; --warn:#f0a63a; --warn-soft:#3a2c15; --done:#4b5567;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Onest",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.5;display:flex;justify-content:center}
+main{width:100%;max-width:520px;padding:24px 20px 32px}
+.stage{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0}
+.stage h1{font-size:20px;font-weight:500;margin:0}
+.stage .range{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.clock{font-size:clamp(64px,22vw,112px);font-weight:700;letter-spacing:-0.03em;line-height:1;
+  font-variant-numeric:tabular-nums;margin:20px 0 6px;color:var(--now);transition:color .3s}
+.clock.warn{color:var(--warn)}
+.sub{color:var(--muted);margin:0 0 24px}
+.track{position:relative;display:flex;gap:3px;height:14px;margin:0 0 28px}
+.seg{border-radius:4px;background:var(--line)}
+.seg.done{background:var(--done)}
+.seg.cur{background:var(--now-soft);overflow:hidden;position:relative}
+.seg.cur .fill{position:absolute;inset:0 auto 0 0;background:var(--now)}
+.track.warn .seg.cur{background:var(--warn-soft)}
+.track.warn .seg.cur .fill{background:var(--warn)}
+ol{list-style:none;padding:0;margin:0;border-top:1px solid var(--line)}
+li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+li .t{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+li.done{color:var(--done)} li.done .t{color:var(--done)}
+li.cur{font-weight:500} li.cur .t{color:var(--now)}
+.idle{text-align:left}
+.idle p{color:var(--muted)}
+button{font:inherit;font-weight:500;padding:12px 20px;border-radius:8px;border:0;background:var(--now);color:var(--card);cursor:pointer}
+button:focus-visible{outline:3px solid var(--now-soft);outline-offset:2px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion: reduce){.clock{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <section id="idle" class="idle" hidden>
+    <h1 style="font-size:20px;font-weight:500;margin:0 0 8px">Таймер ещё не запущен</h1>
+    <p>Обычно ссылку с запущенным таймером присылает интервьюер. Если договорились запустить вручную, нажмите кнопку.</p>
+    <button id="startBtn" type="button">Запустить сейчас</button>
+  </section>
+
+  <section id="run" hidden>
+    <div class="stage"><h1 id="stageName"></h1><span class="range" id="stageRange"></span></div>
+    <div class="clock" id="clock" aria-live="off">00:00</div>
+    <p class="sub" id="sub"></p>
+    <div class="track" id="track" aria-hidden="true"></div>
+    <ol id="plan"></ol>
+  </section>
+</main>
+<script>
+const STAGES = [
+  {name:"Знакомство", min:5},
+  {name:"Часть 1. Проверка отчёта", min:30},
+  {name:"Обсуждение части 1", min:20},
+  {name:"Часть 2. Решение о бюджете", min:20},
+  {name:"Часть 3. Атрибуция", min:10},
+  {name:"Ваши вопросы", min:5}
+];
+const TOTAL = STAGES.reduce((s,x)=>s+x.min,0);
+const $ = id => document.getElementById(id);
+const hhmm = d => d.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+const pad = n => String(n).padStart(2,"0");
+
+function readStart(){
+  const m = location.hash.match(/^#s-(\d{9,11})$/);
+  return m ? Number(m[1]) * 1000 : null;
+}
+
+let start = null, built = false;
+
+function build(){
+  const track = $("track"), plan = $("plan");
+  track.innerHTML = ""; plan.innerHTML = "";
+  let t = start;
+  STAGES.forEach((s,i)=>{
+    const seg = document.createElement("div");
+    seg.className = "seg"; seg.style.flex = s.min; seg.dataset.i = i;
+    seg.innerHTML = '<div class="fill" style="width:0"></div>';
+    track.appendChild(seg);
+    const a = new Date(t), b = new Date(t + s.min*60000);
+    s.from = t; s.to = t + s.min*60000; t = s.to;
+    const li = document.createElement("li"); li.dataset.i = i;
+    const n = document.createElement("span"); n.textContent = s.name;
+    const tt = document.createElement("span"); tt.className = "t"; tt.textContent = hhmm(a) + "–" + hhmm(b);
+    li.append(n, tt); plan.appendChild(li);
+  });
+  built = true;
+}
+
+function tick(){
+  if(start === null){ $("idle").hidden = false; $("run").hidden = true; return; }
+  $("idle").hidden = true; $("run").hidden = false;
+  if(!built) build();
+  const now = Date.now();
+  let idx = STAGES.findIndex(s => now < s.to);
+  const finished = idx === -1;
+  if(now < start) idx = 0;
+  document.querySelectorAll(".seg").forEach((el,i)=>{
+    el.classList.toggle("done", finished || i < idx);
+    el.classList.toggle("cur", !finished && i === idx);
+    const f = el.querySelector(".fill");
+    if(!finished && i === idx){
+      const s = STAGES[i];
+      f.style.width = Math.max(0, Math.min(100, (now - s.from) / (s.to - s.from) * 100)) + "%";
+    } else f.style.width = "0";
+  });
+  document.querySelectorAll("#plan li").forEach((el,i)=>{
+    el.classList.toggle("done", finished || i < idx);
+    el.classList.toggle("cur", !finished && i === idx);
+  });
+  if(finished){
+    $("stageName").textContent = "Время вышло";
+    $("stageRange").textContent = "";
+    $("clock").textContent = "00:00";
+    $("clock").classList.remove("warn"); $("track").classList.remove("warn");
+    $("sub").textContent = "Спасибо! Собеседование подошло к концу.";
+    document.title = "Время вышло";
+    return;
+  }
+  const s = STAGES[idx];
+  const left = Math.max(0, Math.ceil(((now < start ? start : s.to) - now) / 1000));
+  const warn = now >= start && left <= 180;
+  $("stageName").textContent = now < start ? "Скоро старт" : s.name;
+  $("stageRange").textContent = hhmm(new Date(s.from)) + "–" + hhmm(new Date(s.to));
+  $("clock").textContent = pad(Math.floor(left/60)) + ":" + pad(left%60);
+  $("clock").classList.toggle("warn", warn); $("track").classList.toggle("warn", warn);
+  const next = STAGES[idx+1];
+  $("sub").textContent = now < start ? "до начала" :
+    (next ? "осталось на этом этапе · дальше " + next.name.toLowerCase() : "осталось до конца собеседования");
+  document.title = $("clock").textContent + " · " + (now < start ? "старт" : s.name);
+}
+
+function onHash(){ start = readStart(); built = false; tick(); }
+window.addEventListener("hashchange", onHash);
+$("startBtn").addEventListener("click", ()=>{
+  location.hash = "s-" + Math.floor(Date.now()/1000);
+});
+onHash();
+setInterval(tick, 500);
+</script>
+</body>
+</html>
