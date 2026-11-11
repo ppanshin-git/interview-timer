@@ -27,18 +27,14 @@ main{width:100%;max-width:560px;padding:24px 20px 40px}
 .seg.done{background:var(--done)}.seg.cur{background:var(--now-soft)}
 .seg.cur .fill{position:absolute;inset:0 auto 0 0;background:var(--now)}
 .track.warn .seg.cur{background:var(--warn-soft)}.track.warn .seg.cur .fill{background:var(--warn)}
-.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 20px}
-.box h2{font-size:15px;font-weight:500;margin:0 0 8px}
-textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;width:100%;min-height:140px;resize:vertical}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
-.toast{font-size:13px;color:var(--ok);min-height:20px}
 ol{list-style:none;padding:0;margin:0;border-top:1px solid var(--line)}
 li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
 li .t{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
 li.done,li.done .t{color:var(--done)}li.cur{font-weight:500}li.cur .t{color:var(--now)}
 button{font:inherit;font-size:14px;font-weight:500;padding:9px 16px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
 button.primary{background:var(--now);color:var(--card);border-color:var(--now)}
-button:focus-visible,textarea:focus-visible{outline:3px solid var(--now-soft);outline-offset:1px}
+button:focus-visible{outline:3px solid var(--now-soft);outline-offset:1px}
 .idle p{color:var(--muted)}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion: reduce){.clock{transition:none}}
@@ -58,35 +54,28 @@ button:focus-visible,textarea:focus-visible{outline:3px solid var(--now-soft);ou
     <p class="sub" id="sub"></p>
     <div class="track" id="track" aria-hidden="true"></div>
 
-    <div class="box" id="ansBox" hidden>
-      <h2 id="ansTitle">Ваши ответы</h2>
-      <textarea id="ans" placeholder="Сюда можно записывать ответы на вопросы интервьюера и свои выводы. Текст сохраняется в этом браузере."></textarea>
-      <div class="row">
-        <button id="copyAns" type="button">Скопировать ответы</button>
-        <button id="nextBtn" type="button">Этап завершён, дальше</button>
-      </div>
-      <div class="toast" id="toast" aria-live="polite"></div>
+    <div class="row" id="navRow" hidden style="margin:0 0 20px">
+      <button id="nextBtn" type="button">Этап завершён, дальше</button>
     </div>
 
     <ol id="plan"></ol>
   </section>
 </main>
-<textarea id="clip" aria-hidden="true" tabindex="-1" style="position:absolute;left:-9999px;top:0;width:1px;height:1px;min-height:0"></textarea>
 <script>
 const STAGES=[
-  {name:"Знакомство",min:5,answers:false},
-  {name:"Часть 1. Проверка отчёта",min:30,answers:true},
-  {name:"Обсуждение части 1",min:20,answers:true},
-  {name:"Часть 2. Решение о бюджете",min:20,answers:true},
-  {name:"Часть 3. Атрибуция",min:10,answers:true},
-  {name:"Ваши вопросы",min:5,answers:false}
+  {name:"Знакомство",min:5},
+  {name:"Часть 1. Проверка отчёта",min:30},
+  {name:"Обсуждение части 1",min:20},
+  {name:"Часть 2. Решение о бюджете",min:20},
+  {name:"Часть 3. Атрибуция",min:10},
+  {name:"Ваши вопросы",min:5}
 ];
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,"0");
 const hhmm=t=>new Date(t).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
 
 // ссылка: #s-<старт, сек>[-<этап>x<конец этапа, сек от старта>]...
-let start=null, adv={}, built=false, shownStage=-1;
+let start=null, adv={}, built=false;
 
 function parseHash(){
   const m=location.hash.match(/^#s-(\d{9,11})((?:-\d+x\d+)*)$/);
@@ -106,17 +95,6 @@ function bounds(){
   return out;
 }
 function idxAt(now,b){const i=b.findIndex(x=>now<x.to);return i===-1?STAGES.length:i;}
-function key(i){return "ans-"+Math.floor(start/1000)+"-"+i;}
-function getAns(i){try{return localStorage.getItem(key(i))||"";}catch(e){return "";}}
-function setAns(i,v){try{localStorage.setItem(key(i),v);}catch(e){}}
-function toast(m){$("toast").textContent=m;clearTimeout(toast.t);toast.t=setTimeout(()=>$("toast").textContent="",2500);}
-async function copy(text,ok){
-  try{await navigator.clipboard.writeText(text);toast(ok);return;}catch(e){}
-  const c=$("clip");c.value=text;c.select();
-  try{if(document.execCommand("copy")){toast(ok);return;}}catch(e){}
-  toast("Выделите текст в поле и скопируйте вручную (Ctrl+C)");
-}
-
 function build(){
   const track=$("track"),plan=$("plan");track.innerHTML="";plan.innerHTML="";
   STAGES.forEach((s,i)=>{
@@ -145,7 +123,7 @@ function tick(){
     $("stageName").textContent="Время вышло";$("stageRange").textContent="";$("clock").textContent="00:00";
     $("clock").classList.remove("warn");$("track").classList.remove("warn");
     $("sub").textContent="Спасибо! Собеседование подошло к концу.";document.title="Время вышло";
-    $("ansBox").hidden=true;return;
+    $("navRow").hidden=true;return;
   }
   const s=STAGES[idx];
   const left=Math.max(0,Math.ceil(((before?start:b[idx].to)-now)/1000));
@@ -157,30 +135,17 @@ function tick(){
   const next=STAGES[idx+1];
   $("sub").textContent=before?"до начала":(next?"осталось на этом этапе · дальше "+next.name.toLowerCase():"осталось до конца собеседования");
   document.title=$("clock").textContent+" · "+(before?"старт":s.name);
-  if(shownStage!==idx){
-    shownStage=idx;
-    $("ansBox").hidden=before||!(s.answers||next);
-    $("ans").hidden=!s.answers;$("copyAns").hidden=!s.answers;
-    $("ansTitle").textContent=s.answers?"Ваши ответы: "+s.name.toLowerCase():"Когда будете готовы перейти дальше";
-    $("ans").value=getAns(idx);$("ans").dataset.i=idx;
-    $("nextBtn").hidden=!next;
-  }
+  $("navRow").hidden=before||!next;
 }
 
-$("ans").addEventListener("input",e=>setAns(+e.target.dataset.i,e.target.value));
-$("copyAns").addEventListener("click",()=>{
-  const i=+$("ans").dataset.i;const txt=($("ans").value||"").trim();
-  if(!txt){toast("Поле пока пустое");return;}
-  copy("Ответы, "+STAGES[i].name.toLowerCase()+":\n"+txt,"Скопировано, вставьте в чат Meet");
-});
 $("nextBtn").addEventListener("click",()=>{
   const now=Date.now(),b=bounds(),i=idxAt(now,b);
   if(i>=STAGES.length-1||now<start)return;
   if(!confirm("Перейти к следующему этапу? Оставшееся время перенесётся на него. Переходите, когда об этом договорились с интервьюером."))return;
-  adv[i]=Math.floor(now/1000)*1000;writeHash();shownStage=-1;tick();
+  adv[i]=Math.floor(now/1000)*1000;writeHash();tick();
 });
-$("startBtn").addEventListener("click",()=>{start=Math.floor(Date.now()/1000)*1000;adv={};writeHash();shownStage=-1;tick();});
-window.addEventListener("hashchange",()=>{if(parseHash()){built=false;shownStage=-1;tick();}});
+$("startBtn").addEventListener("click",()=>{start=Math.floor(Date.now()/1000)*1000;adv={};writeHash();tick();});
+window.addEventListener("hashchange",()=>{if(parseHash()){built=false;tick();}});
 parseHash();tick();setInterval(tick,500);
 </script>
 </body>
