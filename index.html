@@ -8,53 +8,38 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#eef1f5; --card:#ffffff; --ink:#18202b; --muted:#5d6878; --line:#d7dde6;
-  --now:#2b4acb; --now-soft:#e2e7fb; --warn:#b86a00; --warn-soft:#fbefdc; --done:#aab3c0;
-  color-scheme:light;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#121722; --card:#1a2130; --ink:#e8ecf2; --muted:#9aa5b5; --line:#2c3547;
-    --now:#8ea2ff; --now-soft:#25305a; --warn:#f0a63a; --warn-soft:#3a2c15; --done:#4b5567;
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#121722; --card:#1a2130; --ink:#e8ecf2; --muted:#9aa5b5; --line:#2c3547;
-  --now:#8ea2ff; --now-soft:#25305a; --warn:#f0a63a; --warn-soft:#3a2c15; --done:#4b5567;
-  color-scheme:dark;
-}
+:root{--bg:#eef1f5;--card:#fff;--ink:#18202b;--muted:#5d6878;--line:#d7dde6;--now:#2b4acb;--now-soft:#e2e7fb;--warn:#b86a00;--warn-soft:#fbefdc;--done:#aab3c0;--ok:#1d7a4b;
+color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121722;--card:#1a2130;--ink:#e8ecf2;--muted:#9aa5b5;--line:#2c3547;--now:#8ea2ff;--now-soft:#25305a;--warn:#f0a63a;--warn-soft:#3a2c15;--done:#4b5567;--ok:#6fd39c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121722;--card:#1a2130;--ink:#e8ecf2;--muted:#9aa5b5;--line:#2c3547;--now:#8ea2ff;--now-soft:#25305a;--warn:#f0a63a;--warn-soft:#3a2c15;--done:#4b5567;--ok:#6fd39c;color-scheme:dark}
 *,*::before,*::after{box-sizing:inherit}
-html,body{margin:0;height:100%}
-body{background:var(--bg);color:var(--ink);font-family:"Onest",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  font-size:16px;line-height:1.5;display:flex;justify-content:center}
-main{width:100%;max-width:520px;padding:24px 20px 32px}
-.stage{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Onest",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.5;display:flex;justify-content:center}
+main{width:100%;max-width:560px;padding:24px 20px 40px}
+.stage{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 .stage h1{font-size:20px;font-weight:500;margin:0}
-.stage .range{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.clock{font-size:clamp(64px,22vw,112px);font-weight:700;letter-spacing:-0.03em;line-height:1;
-  font-variant-numeric:tabular-nums;margin:20px 0 6px;color:var(--now);transition:color .3s}
+.range{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.clock{font-size:clamp(64px,22vw,112px);font-weight:700;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;margin:20px 0 6px;color:var(--now);transition:color .3s}
 .clock.warn{color:var(--warn)}
-.sub{color:var(--muted);margin:0 0 24px}
-.track{position:relative;display:flex;gap:3px;height:14px;margin:0 0 28px}
-.seg{border-radius:4px;background:var(--line)}
-.seg.done{background:var(--done)}
-.seg.cur{background:var(--now-soft);overflow:hidden;position:relative}
+.sub{color:var(--muted);margin:0 0 16px}
+.track{display:flex;gap:3px;height:14px;margin:0 0 20px}
+.seg{border-radius:4px;background:var(--line);position:relative;overflow:hidden}
+.seg.done{background:var(--done)}.seg.cur{background:var(--now-soft)}
 .seg.cur .fill{position:absolute;inset:0 auto 0 0;background:var(--now)}
-.track.warn .seg.cur{background:var(--warn-soft)}
-.track.warn .seg.cur .fill{background:var(--warn)}
+.track.warn .seg.cur{background:var(--warn-soft)}.track.warn .seg.cur .fill{background:var(--warn)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 20px}
+.box h2{font-size:15px;font-weight:500;margin:0 0 8px}
+textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;width:100%;min-height:140px;resize:vertical}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.toast{font-size:13px;color:var(--ok);min-height:20px}
 ol{list-style:none;padding:0;margin:0;border-top:1px solid var(--line)}
 li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
 li .t{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
-li.done{color:var(--done)} li.done .t{color:var(--done)}
-li.cur{font-weight:500} li.cur .t{color:var(--now)}
-.idle{text-align:left}
+li.done,li.done .t{color:var(--done)}li.cur{font-weight:500}li.cur .t{color:var(--now)}
+button{font:inherit;font-size:14px;font-weight:500;padding:9px 16px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.primary{background:var(--now);color:var(--card);border-color:var(--now)}
+button:focus-visible,textarea:focus-visible{outline:3px solid var(--now-soft);outline-offset:1px}
 .idle p{color:var(--muted)}
-button{font:inherit;font-weight:500;padding:12px 20px;border-radius:8px;border:0;background:var(--now);color:var(--card);cursor:pointer}
-button:focus-visible{outline:3px solid var(--now-soft);outline-offset:2px}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion: reduce){.clock{transition:none}}
 </style>
@@ -64,107 +49,139 @@ button:focus-visible{outline:3px solid var(--now-soft);outline-offset:2px}
   <section id="idle" class="idle" hidden>
     <h1 style="font-size:20px;font-weight:500;margin:0 0 8px">Таймер ещё не запущен</h1>
     <p>Обычно ссылку с запущенным таймером присылает интервьюер. Если договорились запустить вручную, нажмите кнопку.</p>
-    <button id="startBtn" type="button">Запустить сейчас</button>
+    <button id="startBtn" class="primary" type="button">Запустить сейчас</button>
   </section>
 
   <section id="run" hidden>
     <div class="stage"><h1 id="stageName"></h1><span class="range" id="stageRange"></span></div>
-    <div class="clock" id="clock" aria-live="off">00:00</div>
+    <div class="clock" id="clock">00:00</div>
     <p class="sub" id="sub"></p>
     <div class="track" id="track" aria-hidden="true"></div>
+
+    <div class="box" id="ansBox" hidden>
+      <h2 id="ansTitle">Ваши ответы</h2>
+      <textarea id="ans" placeholder="Сюда можно записывать ответы на вопросы интервьюера и свои выводы. Текст сохраняется в этом браузере."></textarea>
+      <div class="row">
+        <button id="copyAns" type="button">Скопировать ответы</button>
+        <button id="nextBtn" type="button">Этап завершён, дальше</button>
+      </div>
+      <div class="toast" id="toast" aria-live="polite"></div>
+    </div>
+
     <ol id="plan"></ol>
   </section>
 </main>
+<textarea id="clip" aria-hidden="true" tabindex="-1" style="position:absolute;left:-9999px;top:0;width:1px;height:1px;min-height:0"></textarea>
 <script>
-const STAGES = [
-  {name:"Знакомство", min:5},
-  {name:"Часть 1. Проверка отчёта", min:30},
-  {name:"Обсуждение части 1", min:20},
-  {name:"Часть 2. Решение о бюджете", min:20},
-  {name:"Часть 3. Атрибуция", min:10},
-  {name:"Ваши вопросы", min:5}
+const STAGES=[
+  {name:"Знакомство",min:5,answers:false},
+  {name:"Часть 1. Проверка отчёта",min:30,answers:true},
+  {name:"Обсуждение части 1",min:20,answers:true},
+  {name:"Часть 2. Решение о бюджете",min:20,answers:true},
+  {name:"Часть 3. Атрибуция",min:10,answers:true},
+  {name:"Ваши вопросы",min:5,answers:false}
 ];
-const TOTAL = STAGES.reduce((s,x)=>s+x.min,0);
-const $ = id => document.getElementById(id);
-const hhmm = d => d.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
-const pad = n => String(n).padStart(2,"0");
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,"0");
+const hhmm=t=>new Date(t).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
 
-function readStart(){
-  const m = location.hash.match(/^#s-(\d{9,11})$/);
-  return m ? Number(m[1]) * 1000 : null;
+// ссылка: #s-<старт, сек>[-<этап>x<конец этапа, сек от старта>]...
+let start=null, adv={}, built=false, shownStage=-1;
+
+function parseHash(){
+  const m=location.hash.match(/^#s-(\d{9,11})((?:-\d+x\d+)*)$/);
+  if(!m) return false;
+  start=Number(m[1])*1000; adv={};
+  (m[2].match(/\d+x\d+/g)||[]).forEach(p=>{const [i,s]=p.split("x").map(Number); adv[i]=start+s*1000;});
+  return true;
+}
+function writeHash(){
+  let h="s-"+Math.floor(start/1000);
+  Object.keys(adv).map(Number).sort((a,b)=>a-b).forEach(i=>{h+="-"+i+"x"+Math.round((adv[i]-start)/1000);});
+  history.replaceState(null,"","#"+h);
+}
+function bounds(){
+  let plan=start; const out=[]; let prevEnd=start;
+  STAGES.forEach((s,i)=>{plan+=s.min*60000; const to=adv[i]!==undefined?Math.min(adv[i],plan):plan; out.push({from:prevEnd,to,plan}); prevEnd=to;});
+  return out;
+}
+function idxAt(now,b){const i=b.findIndex(x=>now<x.to);return i===-1?STAGES.length:i;}
+function key(i){return "ans-"+Math.floor(start/1000)+"-"+i;}
+function getAns(i){try{return localStorage.getItem(key(i))||"";}catch(e){return "";}}
+function setAns(i,v){try{localStorage.setItem(key(i),v);}catch(e){}}
+function toast(m){$("toast").textContent=m;clearTimeout(toast.t);toast.t=setTimeout(()=>$("toast").textContent="",2500);}
+async function copy(text,ok){
+  try{await navigator.clipboard.writeText(text);toast(ok);return;}catch(e){}
+  const c=$("clip");c.value=text;c.select();
+  try{if(document.execCommand("copy")){toast(ok);return;}}catch(e){}
+  toast("Выделите текст в поле и скопируйте вручную (Ctrl+C)");
 }
 
-let start = null, built = false;
-
 function build(){
-  const track = $("track"), plan = $("plan");
-  track.innerHTML = ""; plan.innerHTML = "";
-  let t = start;
+  const track=$("track"),plan=$("plan");track.innerHTML="";plan.innerHTML="";
   STAGES.forEach((s,i)=>{
-    const seg = document.createElement("div");
-    seg.className = "seg"; seg.style.flex = s.min; seg.dataset.i = i;
-    seg.innerHTML = '<div class="fill" style="width:0"></div>';
-    track.appendChild(seg);
-    const a = new Date(t), b = new Date(t + s.min*60000);
-    s.from = t; s.to = t + s.min*60000; t = s.to;
-    const li = document.createElement("li"); li.dataset.i = i;
-    const n = document.createElement("span"); n.textContent = s.name;
-    const tt = document.createElement("span"); tt.className = "t"; tt.textContent = hhmm(a) + "–" + hhmm(b);
-    li.append(n, tt); plan.appendChild(li);
+    const seg=document.createElement("div");seg.className="seg";seg.style.flex=s.min;seg.innerHTML='<div class="fill" style="width:0"></div>';track.appendChild(seg);
+    const li=document.createElement("li");const n=document.createElement("span");n.textContent=s.name;
+    const t=document.createElement("span");t.className="t";li.append(n,t);plan.appendChild(li);
   });
-  built = true;
+  built=true;
 }
 
 function tick(){
-  if(start === null){ $("idle").hidden = false; $("run").hidden = true; return; }
-  $("idle").hidden = true; $("run").hidden = false;
-  if(!built) build();
-  const now = Date.now();
-  let idx = STAGES.findIndex(s => now < s.to);
-  const finished = idx === -1;
-  if(now < start) idx = 0;
+  if(start===null){$("idle").hidden=false;$("run").hidden=true;return;}
+  $("idle").hidden=true;$("run").hidden=false;
+  if(!built)build();
+  const now=Date.now(),b=bounds();let idx=idxAt(now,b);const fin=idx>=STAGES.length;
+  const before=now<start; if(before) idx=0;
   document.querySelectorAll(".seg").forEach((el,i)=>{
-    el.classList.toggle("done", finished || i < idx);
-    el.classList.toggle("cur", !finished && i === idx);
-    const f = el.querySelector(".fill");
-    if(!finished && i === idx){
-      const s = STAGES[i];
-      f.style.width = Math.max(0, Math.min(100, (now - s.from) / (s.to - s.from) * 100)) + "%";
-    } else f.style.width = "0";
+    el.classList.toggle("done",fin||i<idx);el.classList.toggle("cur",!fin&&i===idx);
+    el.querySelector(".fill").style.width=(!fin&&!before&&i===idx)?Math.min(100,(now-b[i].from)/(b[i].to-b[i].from)*100)+"%":"0";
   });
   document.querySelectorAll("#plan li").forEach((el,i)=>{
-    el.classList.toggle("done", finished || i < idx);
-    el.classList.toggle("cur", !finished && i === idx);
+    el.classList.toggle("done",fin||i<idx);el.classList.toggle("cur",!fin&&i===idx);
+    el.querySelector(".t").textContent=hhmm(b[i].from)+"–"+hhmm(b[i].to);
   });
-  if(finished){
-    $("stageName").textContent = "Время вышло";
-    $("stageRange").textContent = "";
-    $("clock").textContent = "00:00";
-    $("clock").classList.remove("warn"); $("track").classList.remove("warn");
-    $("sub").textContent = "Спасибо! Собеседование подошло к концу.";
-    document.title = "Время вышло";
-    return;
+  if(fin){
+    $("stageName").textContent="Время вышло";$("stageRange").textContent="";$("clock").textContent="00:00";
+    $("clock").classList.remove("warn");$("track").classList.remove("warn");
+    $("sub").textContent="Спасибо! Собеседование подошло к концу.";document.title="Время вышло";
+    $("ansBox").hidden=true;return;
   }
-  const s = STAGES[idx];
-  const left = Math.max(0, Math.ceil(((now < start ? start : s.to) - now) / 1000));
-  const warn = now >= start && left <= 180;
-  $("stageName").textContent = now < start ? "Скоро старт" : s.name;
-  $("stageRange").textContent = hhmm(new Date(s.from)) + "–" + hhmm(new Date(s.to));
-  $("clock").textContent = pad(Math.floor(left/60)) + ":" + pad(left%60);
-  $("clock").classList.toggle("warn", warn); $("track").classList.toggle("warn", warn);
-  const next = STAGES[idx+1];
-  $("sub").textContent = now < start ? "до начала" :
-    (next ? "осталось на этом этапе · дальше " + next.name.toLowerCase() : "осталось до конца собеседования");
-  document.title = $("clock").textContent + " · " + (now < start ? "старт" : s.name);
+  const s=STAGES[idx];
+  const left=Math.max(0,Math.ceil(((before?start:b[idx].to)-now)/1000));
+  const warn=!before&&left<=180;
+  $("stageName").textContent=before?"Скоро старт":s.name;
+  $("stageRange").textContent=hhmm(b[idx].from)+"–"+hhmm(b[idx].to);
+  $("clock").textContent=pad(Math.floor(left/60))+":"+pad(left%60);
+  $("clock").classList.toggle("warn",warn);$("track").classList.toggle("warn",warn);
+  const next=STAGES[idx+1];
+  $("sub").textContent=before?"до начала":(next?"осталось на этом этапе · дальше "+next.name.toLowerCase():"осталось до конца собеседования");
+  document.title=$("clock").textContent+" · "+(before?"старт":s.name);
+  if(shownStage!==idx){
+    shownStage=idx;
+    $("ansBox").hidden=before||!(s.answers||next);
+    $("ans").hidden=!s.answers;$("copyAns").hidden=!s.answers;
+    $("ansTitle").textContent=s.answers?"Ваши ответы: "+s.name.toLowerCase():"Когда будете готовы перейти дальше";
+    $("ans").value=getAns(idx);$("ans").dataset.i=idx;
+    $("nextBtn").hidden=!next;
+  }
 }
 
-function onHash(){ start = readStart(); built = false; tick(); }
-window.addEventListener("hashchange", onHash);
-$("startBtn").addEventListener("click", ()=>{
-  location.hash = "s-" + Math.floor(Date.now()/1000);
+$("ans").addEventListener("input",e=>setAns(+e.target.dataset.i,e.target.value));
+$("copyAns").addEventListener("click",()=>{
+  const i=+$("ans").dataset.i;const txt=($("ans").value||"").trim();
+  if(!txt){toast("Поле пока пустое");return;}
+  copy("Ответы, "+STAGES[i].name.toLowerCase()+":\n"+txt,"Скопировано, вставьте в чат Meet");
 });
-onHash();
-setInterval(tick, 500);
+$("nextBtn").addEventListener("click",()=>{
+  const now=Date.now(),b=bounds(),i=idxAt(now,b);
+  if(i>=STAGES.length-1||now<start)return;
+  if(!confirm("Перейти к следующему этапу? Оставшееся время перенесётся на него. Переходите, когда об этом договорились с интервьюером."))return;
+  adv[i]=Math.floor(now/1000)*1000;writeHash();shownStage=-1;tick();
+});
+$("startBtn").addEventListener("click",()=>{start=Math.floor(Date.now()/1000)*1000;adv={};writeHash();shownStage=-1;tick();});
+window.addEventListener("hashchange",()=>{if(parseHash()){built=false;shownStage=-1;tick();}});
+parseHash();tick();setInterval(tick,500);
 </script>
 </body>
 </html>
